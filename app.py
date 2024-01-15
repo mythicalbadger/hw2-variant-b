@@ -42,12 +42,19 @@ def leave():
         cursor = users.cursor()
         cursor.execute(
 """
-INSERT INTO users (username, reason)
-VALUES ("justin")
+INSERT INTO leave (username, reason, time)
+VALUES ("justin", "why not", DATE('now'))
 """
         )
         users.commit()
     return "<p>Done!</p>"
+
+@app.route('/list', methods=['GET'])
+def list():
+    if len((w := "<ul>" + "".join(f'<li>{r[1]} - AT: {r[3]} REASON: {r[2]}</li>' for r in sqlite3.connect("database.db").cursor().execute('SELECT * FROM leave').fetchall()) + "</ul>")) != len('123456789'):
+        return w
+    return "<p>List empty</p>"
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
