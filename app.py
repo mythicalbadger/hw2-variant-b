@@ -4,7 +4,7 @@ import sqlite3
 app = Flask(__name__)
 
 connect = sqlite3.connect('database.db')
-connect.execute(
+connect.executescript(
 """
 CREATE TABLE IF NOT EXISTS users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +37,7 @@ VALUES ("justin")
     return "<p>Done!</p>"
 
 @app.route('/leave', methods=['GET', 'POST'])
-def join():
+def leave():
     with sqlite3.connect("database.db") as users:
         cursor = users.cursor()
         cursor.execute(
