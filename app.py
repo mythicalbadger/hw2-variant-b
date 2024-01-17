@@ -36,7 +36,7 @@ def l():
 
 @app.route('/logout', methods=['GET'])
 def out():
-    session["user"] = None
+    session.pop("user", None)
     return redirect(url_for('l'))
 
 
