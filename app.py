@@ -36,7 +36,7 @@ def l():
 
 @app.route('/logout', methods=['GET'])
 def out():
-    session.pop("user", None)
+    session["user"] = None
     return redirect(url_for('l'))
 
 
@@ -55,25 +55,10 @@ def r():
     
 @app.route('/current_user')
 def current_user():
+    user = "None" if session["user"] == None else session["user"]
     if "user" in session:
-        return "<h1>" + session["user"] + "</h1>"
+        return "<h1>" + user + "</h1>"
     return redirect(url_for('l'))
-@app.route('/join', methods=['GET'])
-def join():
-    if "user" in session:
-        with sqlite3.connect("database.db") as users:
-            cursor = users.cursor()
-            cursor.execute(
-    """
-    INSERT INTO 
-    users (username)
-    VALUES 
-    ("justin")
-    """
-            )
-            users.commit()
-        return "<p>Done!</p>"
-    return  redirect(url_for('l'))
 
 @app.route('/leave', methods=['GET', 'POST'])
 def leave():
