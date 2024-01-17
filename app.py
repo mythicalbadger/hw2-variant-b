@@ -87,22 +87,34 @@ def join():
 @app.route('/leave', methods=['GET', 'POST'])
 def leave():
     if "user" in session:
-        with sqlite3.connect("database.db") as users:
-            cursor = users.cursor()
-            cursor.execute(
-    """
-    INSERT INTO leave (username, reason, time)
-    VALUES ("justin", "why not", DATE('now'))
-    """
-            )
-            users.commit()
-        return "<p>Done!</p>"
+        if request.method == 'GET':
+            return render_template('leave.html')
+        elif request.method == 'POST':
+            r = request.form['reason']
+            with sqlite3.connect("database.db") as users:
+                cursor = users.cursor()
+                cursor.execute(
+        """
+        INSERT INTO leave (username, reason, time)
+        VALUES (?, ?, DATE('now'))
+        """
+                , (session["user"], r))
+                users.commit()
+            return redirect(url_for('mlist'))
+    return redirect(url_for('l'))
+
+@app.route('/mlist', methods=['GET'])
+def mlist():
+    if "user" in session:
+        if len((w := "<ul>" + "".join(f'<li>{r[1]} - AT: {r[3]} REASON: {r[2]}</li>' for r in sqlite3.connect("database.db").cursor().execute('SELECT * FROM leave WHERE username = ?',(session["user"],)).fetchall()) + "</ul>")) != len('123456789'):
+            return "<h1>Leave Requests</h1>" + w
+        return "<h1>Leave Requests</h1>" + "<p>List empty</p>"
     return redirect(url_for('l'))
 
 @app.route('/list', methods=['GET'])
 def list():
     if "user" in session:
-        if len((w := "<ul>" + "".join(f'<li>{r[1]} - AT: {r[3]} REASON: {r[2]}</li>' for r in sqlite3.connect("database.db").cursor().execute('SELECT * FROM leave').fetchall()) + "</ul>")) != len('123456789'):
+        if len((w := "<ul>" + "".join(f'<li>{r[1]} - AT: {r[3]} REASON: {r[2]}</li>' for r in sqlite3.connect("database.db").cursor().execute('SELECT * FROM leave WHERE username != ?', (session["user"],)).fetchall()) + "</ul>")) != len('123456789'):
             return "<h1>Leave Requests</h1>" + w
         return "<h1>Leave Requests</h1>" + "<p>List empty</p>"
     return redirect(url_for('l'))
