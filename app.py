@@ -45,6 +45,12 @@ def l():
             return redirect(url_for('l'))
         return redirect(url_for('l'))
 
+@app.route('/logout', methods=['GET'])
+def out():
+    session.pop("user", None)
+    return redirect(url_for('l'))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def r():
     if request.method == 'GET':
@@ -58,7 +64,11 @@ def r():
             session["user"] = u
         return redirect(url_for('l'))
     
-
+@app.route('/current_user')
+def current_user():
+    if "user" in session:
+        return "<h1>" + session["user"] + "</h1>"
+    return redirect(url_for('l'))
 @app.route('/join', methods=['GET'])
 def join():
     if "user" in session:
