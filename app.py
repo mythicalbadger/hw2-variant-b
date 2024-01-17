@@ -5,21 +5,10 @@ app = Flask(__name__)
 app.secret_key = "secret"
 
 connect = sqlite3.connect('database.db')
-connect.executescript(
-"""
-CREATE TABLE IF NOT EXISTS users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	username TEXT NOT NULL,
-	password TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS leave (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	username TEXT NOT NULL,
-    reason TEXT NOT NULL,
-    time Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-"""
-    )
+connect.executescript("""
+CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS leave (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, reason TEXT NOT NULL, time Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL);
+""")
 
 @app.route("/")
 def hello_world():
@@ -47,7 +36,7 @@ def l():
 
 @app.route('/logout', methods=['GET'])
 def out():
-    session.pop("user", None)
+    session["user"] = None
     return redirect(url_for('l'))
 
 
@@ -76,8 +65,10 @@ def join():
             cursor = users.cursor()
             cursor.execute(
     """
-    INSERT INTO users (username)
-    VALUES ("justin")
+    INSERT INTO 
+    users (username)
+    VALUES 
+    ("justin")
     """
             )
             users.commit()
@@ -93,12 +84,9 @@ def leave():
             r = request.form['reason']
             with sqlite3.connect("database.db") as users:
                 cursor = users.cursor()
-                cursor.execute(
-        """
-        INSERT INTO leave (username, reason, time)
-        VALUES (?, ?, DATE('now'))
-        """
-                , (session["user"], r))
+                cursor.execute("""
+        INSERT INTO leave (username, reason, time) VALUES (?, ?, DATE('now'))
+    """, (session["user"], r))
                 users.commit()
             return redirect(url_for('mlist'))
     return redirect(url_for('l'))
