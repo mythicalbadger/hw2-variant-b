@@ -1,4 +1,3 @@
-import sqlite3
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session
@@ -57,27 +56,31 @@ def register():
 
 @app.route('/current_user')
 def current_user():
-    if session["user"] is None:
+    if "user" not in session:
         return redirect(url_for('login'))
     return "<h1>" + session["user"] + "</h1>"
 
 
 @app.route('/create_leave_request', methods=['GET', 'POST'])
 def create_leave_request():
-    if session["user"] is None:
+    if "user" not in session:
         return redirect(url_for('login'))
+
+    user = database.get_user_by_username(username=session['user'])
 
     if request.method == 'GET':
         return render_template('create_leave_request.html')
     elif request.method == 'POST':
         reason = request.form['reason']
-        database.create_leave(username=session['user'], reason=reason, time=datetime.now())
+        time = datetime.strptime(request.form['time'], "%Y-%m-%d")
+        database.create_leave(username=session['user'], reason=reason, time=time)
+        database.update_remaining_leave_days(username=session['user'], days=user['remaining_leave_days'] - 1)
         return redirect(url_for('my_leave_requests'))
 
 
 @app.route('/my_leave_requests', methods=['GET'])
 def my_leave_requests():
-    if session["user"] is None:
+    if "user" not in session:
         return redirect(url_for('login'))
 
     requests = database.get_leave_by_username(username=session['user'])
@@ -86,7 +89,7 @@ def my_leave_requests():
 
 @app.route('/leave_requests', methods=['GET'])
 def leave_requests():
-    if session["user"] is None:
+    if "user" not in session:
         return redirect(url_for('login'))
 
     requests = database.get_all_leave_requests()
@@ -95,7 +98,7 @@ def leave_requests():
 
 @app.route('/users', methods=['GET'])
 def list_users():
-    if session["user"] is None:
+    if "user" not in session:
         return redirect(url_for('login'))
 
     users = database.get_all_users()
