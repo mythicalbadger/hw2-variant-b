@@ -1,0 +1,21 @@
+<div class="column is-4 is-offset-4">
+    <h1 class="title">Leave Requests</h1>
+    <div class="box" style="width: 50%">
+        <table style="width: 100%; text-align: left">
+            <thead>
+            <th>Username</th>
+            <th>Reason</th>
+            <th>Date</th>
+            </thead>
+            <tbody>
+            {% for request in requests %}
+                <tr>
+                    <td>{{ request.username }}</td>
+                    <td>{{ request.reason }}</td>
+                    <td>{{ request.time }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
