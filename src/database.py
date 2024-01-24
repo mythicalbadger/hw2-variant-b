@@ -25,8 +25,20 @@ def create_leave(username: str, reason: str, time: datetime.datetime) -> None:
     connection.commit()
 
 
+def delete_leave(leave_id: int) -> None:
+    connection.execute(SQLScripts.delete_leave_request, (leave_id,))
+    connection.commit()
+
+
 def get_leave_by_username(username: str) -> list:
     return connection.execute(SQLScripts.get_leave_by_username, (username,)).fetchall()
+
+
+def get_leave_by_id(leave_id: int) -> dict:
+    return connection.execute(SQLScripts.get_leave_by_id, (leave_id,)).fetchone()
+
+def leave_request_exists(username: str, time: datetime) -> bool:
+    return connection.execute(SQLScripts.is_leave_request_in_db, (username, time)).fetchone() is not None
 
 
 def get_user_by_username(username: str) -> dict:
